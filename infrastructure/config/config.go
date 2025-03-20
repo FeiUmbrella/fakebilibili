@@ -96,7 +96,7 @@ func getConfigPath() string {
 	if filepath.Base(curDir) == "test" {
 		return filepath.ToSlash("../config/config.ini")
 	}
-	return filepath.ToSlash("./config/config.ini")
+	return filepath.ToSlash("./infrastructure/config/config.ini")
 }
 
 // 每个包的init函数都会在包被倒入的时候自动执行，即使该包被多个包导入也只会执行一次
