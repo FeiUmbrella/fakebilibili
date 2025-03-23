@@ -31,7 +31,7 @@ import (
 )
 
 // 全局DB
-var Db *gorm.DB
+var MysqlDb *gorm.DB
 
 type MyWriter struct {
 	log *logrus.Logger
@@ -68,14 +68,14 @@ func init() {
 		// 创建MySQL连接
 		var err error
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&loc=Local", mysqlConfig.Username, mysqlConfig.Password, mysqlConfig.IP, mysqlConfig.Port, mysqlConfig.Database)
-		Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		MysqlDb, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: myLogger, // 传入自定义的数据库log格式
 		})
 		if err != nil {
 			return err
 		}
-		if Db.Error != nil {
-			return Db.Error
+		if MysqlDb.Error != nil {
+			return MysqlDb.Error
 		}
 		return nil
 	}); err != nil {
@@ -87,7 +87,7 @@ func init() {
 }
 
 func migration() {
-	err := Db.Set("gorm:table_options", "charset=utf8mb4").
+	err := MysqlDb.Set("gorm:table_options", "charset=utf8mb4").
 		AutoMigrate(
 			&user.User{},
 			&attention.Attention{},
