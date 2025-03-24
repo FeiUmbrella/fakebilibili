@@ -33,7 +33,7 @@ type EmailConfigStruct struct {
 	User     string `ini:"user"`
 	Password string `ini:"password"`
 	Host     string `ini:"host"`
-	Port     int    `ini:"port"`
+	Port     string `ini:"port"`
 }
 
 type LiveConfigStruct struct {
