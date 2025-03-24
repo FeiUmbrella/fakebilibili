@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fakebilibili/infrastructure/model/user/liveInfo"
+	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"time"
@@ -14,16 +16,34 @@ type User struct {
 	Openid      string         `json:"openid" gorm:"column:openid; type:varchar(255)"` // 用于微信登录
 	Salt        string         `json:"salt" gorm:"column:salt;type:varchar(255)"`      // 加密盐
 	Password    string         `json:"password" gorm:"column:password; type:varchar(255)"`
-	Photo       datatypes.JSON `json:"photo" gorm:"column:photo"`
+	Photo       datatypes.JSON `json:"photo" gorm:"column:photo"` // 头像
 	Gender      int8           `json:"gender" gorm:"column:gender"`
-	BirthDate   time.Time      `json:"birth_date" gorm:"column:birth_date"`
+	BirthDate   time.Time      `json:"birth_date" gorm:"column:birth_date"`                       // 注册日期
 	IsVisible   int8           `json:"is_visible" gorm:"column:is_visible"`                       // todo: 这个字段干什么用的？
 	Signature   string         `json:"signature" gorm:"column:signature;type:varchar(255)"`       // todo: 这个字段干什么用的？
 	SocialMedia string         `json:"social_media" gorm:"column:social_media;type:varchar(255)"` // todo: 这个字段干什么用的？
+
+	LiveInfo liveInfo.LiveInfo `json:"liveInfo" gorm:"foreignKey:Uid"`
 }
 
 type UserList []User
 
 func (User) TableName() string {
 	return "lv_users"
+}
+
+// dao层 ---------------------------------------
+
+// IsExistByField 查找user表中字段field是否存在value的字段
+func (us *User) IsExistByField(field string, value any) bool {
+	err := global.MysqlDb.Where(field, value).First(&us).Error
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// Create 创建用户
+func (us *User) Create() error {
+	return global.MysqlDb.Model(&User{}).Create(&us).Error
 }

@@ -1,15 +1,9 @@
 package main
 
 import (
-	"fakebilibili/infrastructure/pkg/global"
-	"fmt"
+	"fakebilibili/adapter/http/router"
 )
 
 func main() {
-	sqlDb, _ := global.Db.DB()
-	err := sqlDb.Ping()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Success")
+	router.InitRouter()
 }
