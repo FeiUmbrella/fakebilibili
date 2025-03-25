@@ -21,11 +21,19 @@ fake_bilibili后端系统是一个基于Web的视频播放直播平台，为用�
 5. 保存本地数据库表
 6. 生成token
 > 密码盐加密逻辑：
+> 1. 从密码盐字符串随机选出6位作为密码盐salt
+> 2. md5(salt + password + salt) 整体进行Md5加密得到加密密码
+> 3. 将加密密码和密码盐salt保存到数据库
 > 
+## 杂项知识
+1. 跨域配置中的预检请求是什么？
+> 预检请求（Preflight Request）是浏览器在发送某些 非简单跨域请求 之前，自动发起的一次 HTTP OPTIONS 请求。目的是向服务器确认是否允许实际的跨域请求。
 ## （暂时）参考文章
 * [Go系列：结构体标签](https://juejin.cn/post/7005465902804123679#heading-17)
 * [Go 基础系列：17. 详解 20 个占位符](https://zhuanlan.zhihu.com/p/415843240)
-* [令牌桶](https://blog.csdn.net/ic_xcc/article/details/120418426)
+* [令牌桶]
+* * [Go 基于令牌桶实现的官方限流器实际使用](https://blog.csdn.net/ic_xcc/article/details/120418426)
+* * [Golang 标准库限流器 time/rate 实现剖析](https://www.cyhone.com/articles/analisys-of-golang-rate/)
 ## 疑点
 ### 数据库表
 在定义部分数据库表的时候，外键的引用还要再另外创建一个“多余”的表结构。
