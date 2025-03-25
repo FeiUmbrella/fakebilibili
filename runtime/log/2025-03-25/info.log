@@ -1,0 +1,4 @@
+{"time":"2025-03-25 18:39:14","level":"info","msg":"向邮箱：2199492464@qq.com发送验证码"}
+{"time":"2025-03-25 18:39:56","level":"info","msg":"给用户 2 签发并向redis投递了token：eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOjIsIkxvZ2luVGltZSI6IjIwMjUtMDMtMjUgMTg6Mzk6NTYiLCJleHAiOjE3NDM1MDM5OTYsImlhdCI6MTc0Mjg5OTE5NiwiaXNzIjoicm9vdCIsInN1YiI6IkF1dGggVG9rZW4ifQ.WRIbasydQJ7XTd6TKaECiJcHum5GU3K3_uspK11pH8M"}
+{"time":"2025-03-25 18:40:58","level":"info","msg":"用户 test1 在 2025-03-25 18:40:58 登录"}
+{"time":"2025-03-25 18:40:58","level":"info","msg":"给用户 2 签发并向redis投递了token：eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOjIsIkxvZ2luVGltZSI6IjIwMjUtMDMtMjUgMTg6NDA6NTgiLCJleHAiOjE3NDM1MDQwNTgsImlhdCI6MTc0Mjg5OTI1OCwiaXNzIjoicm9vdCIsInN1YiI6IkF1dGggVG9rZW4ifQ.yRFnp2hyF1t8dk5u0XsGCTFS5XCaB1jEbVsjyHsm2CQ"}

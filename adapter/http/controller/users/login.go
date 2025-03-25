@@ -29,13 +29,37 @@ func (lg LoginControllers) Register(ctx *gin.Context) {
 func (lg LoginControllers) SendEmailVerCode(ctx *gin.Context) {
 	if rec, err := controller.ShouldBind(ctx, new(receive.SendEmailVerCodeReceiveStruct)); err == nil {
 		// 令牌桶来限制邮箱频繁发送 每10s放一个令牌，桶大小为10
-		l := limiter.NewLimiter(rate.Every(10*time.Second), 1, rec.Email)
+		l := limiter.NewLimiter(rate.Every(10*time.Second), 10, rec.Email)
 		if !l.Allow() {
 			lg.Response(ctx, nil, errors.New("请求过于频繁，请1分钟后再试"))
 			return
 		}
 		results, err := users.SendEmailVerCode(rec)
 		global.Logger.Infof("向邮箱：%s发送验证码", rec.Email)
+		lg.Response(ctx, results, err)
+	}
+}
+
+// Login 登录
+func (lg LoginControllers) Login(ctx *gin.Context) {
+	if rec, err := controller.ShouldBind(ctx, new(receive.LoginReceiveStruct)); err == nil {
+		results, err := users.Login(rec)
+		lg.Response(ctx, results, err)
+	}
+}
+
+// SendEmailVerCodeByForget 忘记密码时发送邮箱验证码
+func (lg LoginControllers) SendEmailVerCodeByForget(ctx *gin.Context) {
+	if rec, err := controller.ShouldBind(ctx, new(receive.SendEmailVerCodeReceiveStruct)); err == nil {
+		results, err := users.SendEmailVerCodeByForget(rec)
+		lg.Response(ctx, results, err)
+	}
+}
+
+// Forget 忘记密码
+func (lg LoginControllers) Forget(ctx *gin.Context) {
+	if rec, err := controller.ShouldBind(ctx, new(receive.ForgetReceiveStruct)); err == nil {
+		results, err := users.Forget(rec)
 		lg.Response(ctx, results, err)
 	}
 }

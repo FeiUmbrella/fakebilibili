@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fakebilibili/adapter/http/middleware"
 	"fakebilibili/adapter/http/router/users"
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +14,7 @@ var RoutersGroupApp = new(RoutersGroup)
 
 func InitRouter() {
 	router := gin.Default()
-	//todo:跨域中间件
-	//router.Use(middlewares.Cors())
+	router.Use(middleware.Cors())
 	PrivateGroup := router.Group("")
 	PrivateGroup.Use()
 	{

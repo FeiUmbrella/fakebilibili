@@ -3,6 +3,7 @@ package users
 import (
 	"crypto/md5"
 	"encoding/json"
+	"errors"
 	"fakebilibili/adapter/http/receive"
 	"fakebilibili/adapter/http/response"
 	"fakebilibili/infrastructure/consts"
@@ -109,4 +110,83 @@ func SendEmailVerCode(data *receive.SendEmailVerCodeReceiveStruct) (interface{},
 		return nil, err
 	}
 	return "邮箱验证码发送成功", nil
+}
+
+// Login 登录
+func Login(data *receive.LoginReceiveStruct) (interface{}, error) {
+	users := new(user.User)
+	if !users.IsExistByField("username", data.UserName) {
+		return nil, errors.New("账号不存在")
+	}
+	global.Logger.Infof("用户 %s 在 %s 登录", data.UserName, time.Now().Format(time.DateTime))
+	if !users.IfPasswordCorrect(data.Password) {
+		return nil, errors.New("密码错误")
+	}
+	// 签发token
+	tokenString := jwt.GenerateToken(users.ID)
+	userInfo := response.UserInfoResponse(users, tokenString)
+	return userInfo, nil
+}
+
+// SendEmailVerCodeByForget 忘记密码发送邮箱验证码
+func SendEmailVerCodeByForget(data *receive.SendEmailVerCodeReceiveStruct) (interface{}, error) {
+	users := new(user.User)
+	if !users.IsExistByField("email", data.Email) {
+		return nil, fmt.Errorf("邮箱未注册")
+	}
+
+	// 发送对象
+	mailTo := []string{data.Email}
+	// 邮箱主题
+	subject := "验证码"
+	// 生成6位验证码
+	code := fmt.Sprintf("%06v", rand.New(rand.NewSource(time.Now().UnixNano())).Int63n(1000000))
+	// 邮件正文
+	body := fmt.Sprintf("您正在找回密码，您的注册验证码为:%s,5分钟内有效,请勿转发他人", code)
+	err := email.SendEmail(mailTo, subject, body)
+	if err != nil {
+		return nil, err
+	}
+	err = global.RedisDb.Set(fmt.Sprintf("%s%s", consts.RegEmailVerCodeByForget, data.Email), code, 5*time.Minute).Err()
+	if err != nil {
+		return nil, err
+	}
+	return "邮箱验证码发送成功", nil
+}
+
+// Forget 忘记密码，利用得到的邮箱验证码修改密码
+func Forget(data *receive.ForgetReceiveStruct) (interface{}, error) {
+	users := new(user.User)
+	if !users.IsExistByField("email", data.Email) {
+		return nil, fmt.Errorf("该账号不存在")
+	}
+	// 判断验证码
+	verCode, err := global.RedisDb.Get(fmt.Sprintf("%s%s", consts.RegEmailVerCodeByForget, data.Email)).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("验证码过期")
+	}
+	if verCode != data.VerificationCode {
+		return nil, fmt.Errorf("验证码错误")
+	}
+
+	// 更新密码
+	// 生成6位密码盐
+	salt := make([]byte, 6)
+	for i := range salt {
+		salt[i] = jwt.SaltStr[rand.Int63()%int64(len(jwt.SaltStr))]
+	}
+	// p = salt + password + salt
+	password := []byte(fmt.Sprintf("%s%s%s", salt, data.Password, salt))
+	// md5 加密
+	passwordMd5 := fmt.Sprintf("%x", md5.Sum(password))
+
+	modifyData := &user.User{
+		Salt:     string(salt),
+		Password: passwordMd5,
+	}
+	res := modifyData.Update()
+	if !res {
+		return nil, fmt.Errorf("密码修改失败")
+	}
+	return "密码修改成功", nil
 }

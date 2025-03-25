@@ -1,8 +1,10 @@
 package user
 
 import (
+	"crypto/md5"
 	"fakebilibili/infrastructure/model/user/liveInfo"
 	"fakebilibili/infrastructure/pkg/global"
+	"fmt"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"time"
@@ -46,4 +48,18 @@ func (us *User) IsExistByField(field string, value any) bool {
 // Create 创建用户
 func (us *User) Create() error {
 	return global.MysqlDb.Model(&User{}).Create(&us).Error
+}
+
+// IfPasswordCorrect 判断用户密码是否正确
+func (us *User) IfPasswordCorrect(userPassword string) bool {
+	pwd := us.Salt + userPassword + us.Salt
+	pwdMd5 := md5.Sum([]byte(pwd))
+	pwdMd5Str := fmt.Sprintf("%x", pwdMd5)
+	return pwdMd5Str == us.Password
+}
+
+// Update 更新用户信息
+func (us *User) Update() bool {
+	err := global.MysqlDb.Model(&User{}).Where("id = ?", us.ID).Updates(us).Error
+	return err == nil
 }
