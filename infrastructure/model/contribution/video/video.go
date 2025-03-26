@@ -4,6 +4,7 @@ import (
 	"fakebilibili/infrastructure/model/contribution/video/barrage"
 	"fakebilibili/infrastructure/model/contribution/video/comments"
 	"fakebilibili/infrastructure/model/user"
+	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -36,4 +37,16 @@ type VideosContributionList []VideosContribution
 
 func (VideosContribution) TableName() string {
 	return "lv_video_contribution"
+}
+
+// GetVideoListBySpace 获取空间视频列表
+func (vcl *VideosContributionList) GetVideoListBySpace(id uint) error {
+	return global.MysqlDb.
+		Model(&VideosContribution{}).
+		Where("uid = ?", id).
+		Preload("Likes").
+		Preload("Comments").
+		Preload("Barrage").
+		Order("created_at desc").
+		Find(&vcl).Error
 }

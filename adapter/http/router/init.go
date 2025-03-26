@@ -21,6 +21,7 @@ func InitRouter() {
 		// 静态资源访问
 		router.Static("/assets", "./assets")
 		RoutersGroupApp.Users.LoginRouter.InitLoginRouter(PrivateGroup)
+		RoutersGroupApp.Users.SpaceRouter.InitSpaceRouter(PrivateGroup)
 	}
 	err := router.Run(":8081")
 	if err != nil {

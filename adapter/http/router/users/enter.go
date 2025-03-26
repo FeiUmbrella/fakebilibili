@@ -4,5 +4,5 @@ package users
 type RouterGroup struct {
 	LoginRouter
 	//UserRouter
-	//SpaceRouter
+	SpaceRouter
 }

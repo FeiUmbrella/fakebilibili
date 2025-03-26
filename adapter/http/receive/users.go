@@ -25,3 +25,23 @@ type ForgetReceiveStruct struct {
 	Email            string `json:"email" binding:"required,email" form:"email"`
 	VerificationCode string `json:"verificationCode" binding:"required" form:"verificationCode"` // 邮箱验证码
 }
+
+// GetAttentionListReceiveStruct 获取用户关注列表 相关参数结构体
+type GetAttentionListReceiveStruct struct {
+	ID uint `json:"id" binding:"required" form:"id"`
+}
+
+// GetVermicelliListReceiveStruct 获取用户粉丝列表 相关参数结构体
+type GetVermicelliListReceiveStruct struct {
+	ID uint `json:"id" binding:"required" form:"id"`
+}
+
+// GetSpaceIndividualReceiveStruct 获取用户个人空间 相关参数结构体
+type GetSpaceIndividualReceiveStruct struct {
+	ID uint `json:"id" binding:"required" form:"id"`
+}
+
+// GetReleaseInformationReceiveStruct 获取用户发布的作品(视频and专栏) 相关参数结构体
+type GetReleaseInformationReceiveStruct struct {
+	ID uint `json:"id" binding:"required" form:"id"`
+}

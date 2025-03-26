@@ -43,3 +43,13 @@ func Success(ctx *gin.Context, data interface{}) {
 	}
 	ctx.JSON(http.StatusOK, rd)
 }
+
+// NotLogin 返回未登录消息体
+func NotLogin(ctx *gin.Context, msg string) {
+	rd := &Data{
+		Code:    CodeNotLogin,
+		Message: msg,
+		Data:    nil,
+	}
+	ctx.JSON(http.StatusOK, rd)
+}

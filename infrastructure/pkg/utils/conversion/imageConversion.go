@@ -5,6 +5,7 @@ import (
 	"fakebilibili/infrastructure/model/common"
 	"fakebilibili/infrastructure/pkg/global"
 	"fmt"
+	"strings"
 )
 
 // FormattingJsonSrc 返回头像的存储路径
@@ -50,4 +51,14 @@ func SwitchTypeAsUrlPrefix(tp string) (url string, err error) {
 	default:
 		return "", fmt.Errorf("undefined format")
 	}
+}
+
+// StringConversionMap 将标签字符串拆分为单个标签
+func StringConversionMap(s string) []string {
+	s = strings.TrimSpace(s)
+	list := strings.Split(s, ",")
+	if len(list) == 1 && list[0] == "" {
+		return []string{}
+	}
+	return list
 }

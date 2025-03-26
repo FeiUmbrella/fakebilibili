@@ -2,6 +2,7 @@ package article
 
 import (
 	"fakebilibili/infrastructure/model/user"
+	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -30,4 +31,14 @@ type ArticlesContributionList []ArticlesContribution
 
 func (ArticlesContribution) TableName() string {
 	return "lv_article_contribution"
+}
+
+// GetArticleBySpace 获取空间专栏
+func (acl *ArticlesContributionList) GetArticleBySpace(id uint) error {
+	return global.MysqlDb.Where("uid = ?", id).
+		Preload("Likes").
+		Preload("Comments").
+		Preload("Classification").
+		Order("created_at desc").
+		Find(&acl).Error
 }

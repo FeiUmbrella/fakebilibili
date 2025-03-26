@@ -63,3 +63,8 @@ func (us *User) Update() bool {
 	err := global.MysqlDb.Model(&User{}).Where("id = ?", us.ID).Updates(us).Error
 	return err == nil
 }
+
+// Find 查找用户信息
+func (us *User) Find(uid uint) {
+	global.MysqlDb.Model(&User{}).Where("id = ?", uid).Find(&us)
+}
