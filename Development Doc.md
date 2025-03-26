@@ -31,6 +31,7 @@ fake_bilibili后端系统是一个基于Web的视频播放直播平台，为用�
 ## （暂时）参考文章
 * [Go系列：结构体标签](https://juejin.cn/post/7005465902804123679#heading-17)
 * [Go 基础系列：17. 详解 20 个占位符](https://zhuanlan.zhihu.com/p/415843240)
+* [处理中文字符的rune类型](https://www.cnblogs.com/cheyunhua/p/16007219.html)
 * [令牌桶]
 * * [Go 基于令牌桶实现的官方限流器实际使用](https://blog.csdn.net/ic_xcc/article/details/120418426)
 * * [Golang 标准库限流器 time/rate 实现剖析](https://www.cyhone.com/articles/analisys-of-golang-rate/)
