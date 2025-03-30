@@ -64,6 +64,13 @@ func (us *User) Update() bool {
 	return err == nil
 }
 
+// UpdatePureZero 更新用户信息，也将0值保存数据库
+func (us *User) UpdatePureZero(data map[string]interface{}) bool {
+	// 使用map来更新字段，如果不在map中的字段会自动保存为对应0值
+	err := global.MysqlDb.Model(&User{}).Where("id = ?", us.ID).Updates(data).Error
+	return err == nil
+}
+
 // Find 查找用户信息
 func (us *User) Find(uid uint) {
 	global.MysqlDb.Model(&User{}).Where("id = ?", uid).Find(&us)

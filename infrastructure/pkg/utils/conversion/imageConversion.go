@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// FormattingJsonSrc 返回头像的存储路径
+// FormattingJsonSrc 返回图片的存储路径
 func FormattingJsonSrc(str []byte) (url string, err error) {
 	data := new(common.Img)
 	err = json.Unmarshal(str, data)

@@ -1,6 +1,9 @@
 package checkIn
 
-import "gorm.io/gorm"
+import (
+	"fakebilibili/infrastructure/pkg/global"
+	"gorm.io/gorm"
+)
 
 // CheckIn 用户签到信息
 type CheckIn struct {
@@ -13,4 +16,24 @@ type CheckIn struct {
 
 func (CheckIn) TableName() string {
 	return "lv_check_in"
+}
+
+// Query 查询签到记录
+func (ck *CheckIn) Query() error {
+	err := global.MysqlDb.Where("uid=?", ck.Uid).First(ck).Error
+	return err
+}
+
+// Create 创建一条签到记录
+func (ck *CheckIn) Create() bool {
+	err := global.MysqlDb.Create(ck).Error
+	return err == nil
+}
+
+// Update 更新用户记录
+func (ck *CheckIn) Update(fields map[string]interface{}) error {
+	err := global.MysqlDb.Model(&CheckIn{}).
+		Where("uid=?", ck.Uid).
+		Updates(fields).Error
+	return err
 }

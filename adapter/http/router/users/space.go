@@ -24,9 +24,9 @@ func (s *SpaceRouter) InitSpaceRouter(Router *gin.RouterGroup) {
 	// 非必须登录
 	SpaceRouter2 := Router.Group("space").Use(middleware.VerificationTokenNotNecessary())
 	{
-		// 获取个人空间
+		// 获取个人空间信息
 		SpaceRouter2.POST("/getSpaceIndividual", spaceControllers.GetSpaceIndividual)
-		// 获取
+		// 获取个人视频和专栏
 		SpaceRouter2.POST("/getReleaseInformation", spaceControllers.GetReleaseInformation)
 	}
 }

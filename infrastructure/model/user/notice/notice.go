@@ -1,17 +1,19 @@
 package notice
 
 import (
+	"fakebilibili/infrastructure/model/common"
 	user2 "fakebilibili/infrastructure/model/user"
+	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-// todo:这个表是干啥的？
+// Notice 用户通知（包括：视频/文章评论、点赞、系统通知）
 type Notice struct {
 	gorm.Model
 	Uid     uint   `json:"uid"`
-	Cid     uint   `json:"cid"`
-	Type    string `json:"type" gorm:"type:varchar(255)"`
+	Cid     uint   `json:"cid"`                           // todo:这个字段什么意思？
+	Type    string `json:"type" gorm:"type:varchar(255)"` // (comment,like,system)
 	ToID    uint   `json:"to_id" gorm:"column:to_id"`
 	ISRead  uint   `json:"is_read" gorm:"column:is_read"`
 	Content string `json:"content" gorm:"type:text"`
@@ -21,13 +23,23 @@ type Notice struct {
 	ArticleInfo Article    `json:"articleInfo" gorm:"foreignKey:to_id"`
 }
 
+var (
+	Online         = "online"         //上线时进行通知
+	VideoComment   = "videoComment"   //视频评论
+	VideoLike      = "videoLike"      //视频点赞
+	ArticleComment = "articleComment" //文章评论
+	ArticleLike    = "articleLike"    //文章点赞
+	UserLogin      = "userLogin"      //用户登录的欢迎消息
+	DailyReport    = "dailyReport"    //日报
+	UserRegister   = "userRegister"
+)
+
 type NoticesList []Notice
 
 func (Notice) TableName() string {
 	return "lv_users_notices"
 }
 
-// todo:为什么临时加一个VideoInfo能解决依赖循环？
 type VideoInfo struct {
 	gorm.Model
 	Uid   uint           `json:"uid"`
@@ -50,4 +62,37 @@ type Article struct {
 
 func (Article) TableName() string {
 	return "lv_article_contribution"
+}
+
+// GetNoticeList 获取通知列表
+func (nl *NoticesList) GetNoticeList(page common.PageInfo, msgType []string, uid uint) error {
+	if len(msgType) > 0 {
+		return global.MysqlDb.
+			Where("uid = ?", uid).
+			Where("type", msgType).
+			Preload("VideoInfo").
+			Preload("UserInfo").
+			Preload("ArticleInfo").
+			Limit(page.Size).
+			Offset((page.Page - 1) * page.Size).
+			Order("created_at desc").
+			Find(nl).Error
+	} else {
+		return global.MysqlDb.
+			Where("uid = ?", uid).
+			Preload("VideoInfo").
+			Preload("UserInfo").
+			Preload("ArticleInfo").
+			Limit(page.Size).
+			Offset((page.Page - 1) * page.Size).
+			Order("created_at desc").
+			Find(nl).Error
+	}
+}
+
+// ReadAll 将所有通知设为已读
+func (nt *Notice) ReadAll(uid uint) error {
+	return global.MysqlDb.
+		Where("uid = ? AND is_read = ?", uid, 0).
+		Updates(&Notice{ISRead: 1}).Error
 }

@@ -22,6 +22,7 @@ func InitRouter() {
 		router.Static("/assets", "./assets")
 		RoutersGroupApp.Users.LoginRouter.InitLoginRouter(PrivateGroup)
 		RoutersGroupApp.Users.SpaceRouter.InitSpaceRouter(PrivateGroup)
+		RoutersGroupApp.Users.InitRouter(PrivateGroup)
 	}
 	err := router.Run(":8081")
 	if err != nil {

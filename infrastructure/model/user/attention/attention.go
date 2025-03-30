@@ -68,3 +68,22 @@ func (at *Attention) GetVermicelliNum(uid uint) (int64, error) {
 	err := global.MysqlDb.Model(&Attention{}).Where("attention_id = ?", uid).Count(&cnt).Error
 	return cnt, err
 }
+
+// Attention 关注/取消关注
+func (at *Attention) Attention(uidA, uidB uint) bool {
+	err := global.MysqlDb.Model(&Attention{}).Where("uid = ? AND attention_id = ?", uidA, uidB).First(&at).Error
+	if err != nil {
+		// a 没有关注 b，创建关注
+		err := global.MysqlDb.Create(&Attention{Uid: uidA, AttentionID: uidB}).Error
+		if err != nil {
+			return false
+		}
+	} else {
+		// a 已经关注 b，取消关注
+		err := global.MysqlDb.Where("id", at.ID).Delete(&at).Error
+		if err != nil {
+			return false
+		}
+	}
+	return true
+}
