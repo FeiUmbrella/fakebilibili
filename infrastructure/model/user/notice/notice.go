@@ -101,7 +101,7 @@ func (nt *Notice) ReadAll(uid uint) error {
 // GetUnreadNum 返回未读通知数量
 func (nt *Notice) GetUnreadNum(uid uint) *int64 {
 	var num int64
-	err := global.MysqlDb.Model(&Notice{}).Debug().
+	err := global.MysqlDb.Model(&Notice{}).
 		Where("uid = ? AND is_read = ?", uid, 0).
 		Count(&num).Error
 	if err != nil {
