@@ -4,6 +4,7 @@ import (
 	"fakebilibili/infrastructure/model/common"
 	user2 "fakebilibili/infrastructure/model/user"
 	"fakebilibili/infrastructure/pkg/global"
+	"fmt"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -11,10 +12,10 @@ import (
 // Notice 用户通知（包括：视频/文章评论、点赞、系统通知）
 type Notice struct {
 	gorm.Model
-	Uid     uint   `json:"uid"`
-	Cid     uint   `json:"cid"`                           // todo:这个字段什么意思？
+	Uid     uint   `json:"uid"`                           // 接受notice通知的userId
+	Cid     uint   `json:"cid"`                           // 触发这个notice事件的userId
 	Type    string `json:"type" gorm:"type:varchar(255)"` // (comment,like,system)
-	ToID    uint   `json:"to_id" gorm:"column:to_id"`
+	ToID    uint   `json:"to_id" gorm:"column:to_id"`     // 跳转的视频或文章的id
 	ISRead  uint   `json:"is_read" gorm:"column:is_read"`
 	Content string `json:"content" gorm:"type:text"`
 
@@ -95,4 +96,28 @@ func (nt *Notice) ReadAll(uid uint) error {
 	return global.MysqlDb.
 		Where("uid = ? AND is_read = ?", uid, 0).
 		Updates(&Notice{ISRead: 1}).Error
+}
+
+// GetUnreadNum 返回未读通知数量
+func (nt *Notice) GetUnreadNum(uid uint) *int64 {
+	var num int64
+	err := global.MysqlDb.Model(&Notice{}).Debug().
+		Where("uid = ? AND is_read = ?", uid, 0).
+		Count(&num).Error
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return &num
+}
+
+// AddNotice uid：接受notice通知的userId；cid：触发这个notice事件的userId；tid：跳转的视频或文章的id；ty：事件类型；content：通知内容
+func (nt *Notice) AddNotice(uid uint, cid uint, tid uint, tp string, content string) error {
+	nt.Uid = uid
+	nt.Cid = cid
+	nt.ToID = tid
+	nt.Type = tp
+	nt.Content = content
+	nt.ISRead = 0
+	return global.MysqlDb.Create(nt).Error
 }

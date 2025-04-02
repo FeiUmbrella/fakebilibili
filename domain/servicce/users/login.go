@@ -9,6 +9,7 @@ import (
 	"fakebilibili/infrastructure/consts"
 	"fakebilibili/infrastructure/model/common"
 	"fakebilibili/infrastructure/model/user"
+	"fakebilibili/infrastructure/model/user/notice"
 	"fakebilibili/infrastructure/pkg/global"
 	"fakebilibili/infrastructure/pkg/utils/email"
 	"fakebilibili/infrastructure/pkg/utils/jwt"
@@ -73,9 +74,9 @@ func Register(data *receive.RegisterReceiveStruct) (interface{}, error) {
 	// 生成对应token
 	tokenString := jwt.GenerateToken(registerUserData.ID)
 	results := response.UserInfoResponse(registerUserData, tokenString)
-	// todo: notice 对应逻辑
-	//ne := new(noticeModel.Notice)
-	//ne.AddNotice(registerData.ID, 37, 0, noticeModel.UserLogin, "欢迎来到本站，请尽情探索，有任何问题都可以联系我。")
+	// 生成一条上线通知
+	nc := new(notice.Notice)
+	_ = nc.AddNotice(registerUserData.ID, 37, 0, notice.UserLogin, "欢迎来到本站，请尽情探索，有任何问题都可以联系我。")
 	return results, nil
 }
 

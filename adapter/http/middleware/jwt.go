@@ -8,6 +8,8 @@ import (
 	response2 "fakebilibili/infrastructure/pkg/utils/response"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	"net/http"
 )
 
 // VerificationToken 提取请求头中的token并解析，来判断用户是否是登录状态
@@ -71,5 +73,41 @@ func VerificationTokenNotNecessary() gin.HandlerFunc {
 			c.Set("currentUserName", u.Username)
 			c.Next()
 		}
+	}
+}
+
+// VerificationTokenAsSocket 提取请求链接中的token参数得到user身份，并为其创建一个websocket用于后端主动向前端发送信息
+func VerificationTokenAsSocket() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 将http升级为websocket
+		conn, err := (&websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool { return true },
+		}).Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			http.NotFound(c.Writer, c.Request)
+			c.Abort()
+			return
+		}
+
+		token := c.Query("token")
+		claim, err := jwt.ParseToken(token)
+		if err != nil {
+			response2.NotLoginWs(conn, "Token 解析失败")
+			_ = conn.Close()
+			c.Abort()
+			return
+		}
+		u := new(user.User)
+		if !u.IsExistByField("id", claim.UserID) {
+			// 数据库没有改动的情况下
+			response2.NotLoginWs(conn, "用户异常")
+			_ = conn.Close()
+			c.Abort()
+			return
+		}
+		c.Set("uid", claim.UserID)
+		c.Set("currentUserName", u.Username)
+		c.Set("conn", conn) // 将为该用户创建的ws传入，方面后面取出使用
+		c.Next()
 	}
 }
