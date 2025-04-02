@@ -35,6 +35,10 @@ fake_bilibili后端系统是一个基于Web的视频播放直播平台，为用�
 * [令牌桶]
 * * [Go 基于令牌桶实现的官方限流器实际使用](https://blog.csdn.net/ic_xcc/article/details/120418426)
 * * [Golang 标准库限流器 time/rate 实现剖析](https://www.cyhone.com/articles/analisys-of-golang-rate/)
+* [Websocket]
+* * [Golang Gin框架 go中 websocket使用 gorilla/websocket使用教程](https://blog.csdn.net/u010844836/article/details/135253498)
+* * [Golang 搭建 WebSocket 应用（一） - 初识 gorilla/websocket](https://developer.aliyun.com/article/1585252)
+* * [WebSocket详解：技术原理、代码演示和应用案例](https://zhuanlan.zhihu.com/p/160910342)
 ## 疑点
 ### 数据库表
 在定义部分数据库表的时候，外键的引用还要再另外创建一个“多余”的表结构。
