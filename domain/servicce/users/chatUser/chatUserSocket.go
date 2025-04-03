@@ -1,18 +1,17 @@
-package chat
+package chatUser
 
 import (
 	"encoding/json"
 	"fakebilibili/adapter/http/receive/socket"
-	"fakebilibili/domain/servicce/users"
-	"fakebilibili/infrastructure/consts"
+	chat2 "fakebilibili/domain/servicce/users/chat"
 	"fakebilibili/infrastructure/model/user"
 	"fakebilibili/infrastructure/model/user/chat"
+	"fakebilibili/infrastructure/pkg/global"
 	"fakebilibili/infrastructure/pkg/utils/response"
-	"fmt"
 	"github.com/gorilla/websocket"
 )
 
-// MsgInfo 私信的类型和内容
+// MsgInfo 聊天的类型和内容
 type MsgInfo struct {
 	Type string
 	Data interface{}
@@ -21,13 +20,13 @@ type MsgInfo struct {
 // UserChannel 包含a用户信息、与a用户通信的ws、以及存放给a用户发送私信的chan
 type UserChannel struct {
 	UserInfo *user.User
+	Tid      uint // a用户聊天的对象b用户
 	Socket   *websocket.Conn
-	ChatList map[uint]*websocket.Conn // 如果uid.ChatList[tid]存在，表明uid用户正处在与tid用户聊天界面，uid.ChatList[tid]存放的是用于推送前端uid用户信息的ws
-	MegList  chan MsgInfo             // 给用户推送的信息
+	MegList  chan MsgInfo // 给用户推送的信息
 }
 
 type Engine struct {
-	UserMapChannel map[uint]*UserChannel // 保存所有当前在“私信列表界面”的用户的UserChannel. uid -> UserChannel
+	UserMapChannel map[uint]*UserChannel // 保存所有当前在聊天页面的用户的UserChannel. uid -> UserChannel
 	Register       chan *UserChannel     // 上线
 	Cancellation   chan *UserChannel     // 下线
 }
@@ -45,17 +44,28 @@ func (e *Engine) Start() {
 		select {
 		case register := <-e.Register: // 有新成员上线
 			e.UserMapChannel[register.UserInfo.ID] = register // 添加新成员
-			// 向该上线用户推送未读私信
-			register.ChatMessage(consts.ChatOnlineUnreadMsg)
+			// uid用户此时在tid用户的聊天界面，清空uid用户与tid用户之间未读信息
+			chatInfo := new(chat.ChatsListInfo)
+			err := chatInfo.UnreadEmpty(register.UserInfo.ID, register.Tid)
+			if err != nil {
+				global.Logger.Errorf("uid:%d 清空聊天列表中对应 tid:%d 的未读状态失败", register.UserInfo.ID, register.Tid)
+			}
+
+			// 此时uid的ChatListWs肯定是在线的
+			if _, ok := chat2.Severe.UserMapChannel[register.UserInfo.ID]; ok {
+				// 将这里的uid与tid聊天界面的uid的ws注册到ChatList那里，表明uid用户正处在tid用户聊天界面
+				chat2.Severe.UserMapChannel[register.UserInfo.ID].ChatList[register.Tid] = register.Socket
+			}
 		case cancellation := <-e.Cancellation: // 有成员断开连接下线
-			//fmt.Printf("%d成员下线", cancellation.UserInfo.ID)
 			delete(e.UserMapChannel, cancellation.UserInfo.ID) // 删除该成员
+			if _, ok := chat2.Severe.UserMapChannel[cancellation.UserInfo.ID]; ok {
+				// 将注册在ChatList那里的uid的ChatUserSocketWs删除，uid用户退出tid用户聊天界面
+				delete(chat2.Severe.UserMapChannel[cancellation.UserInfo.ID].ChatList, cancellation.Tid)
+			}
 		}
 	}
 }
-
-// CreateChatSocket 创建监听信息和发送信息的chat-Ws
-func CreateChatSocket(uid uint, conn *websocket.Conn) error {
+func CreateChatByUserSocket(uid, tid uint, conn *websocket.Conn) error {
 	// 创建一个新的包含用户信息的UserChannel
 	userChannel := new(UserChannel)
 	// 将传入的ws绑定到该用户的userChannel
@@ -66,22 +76,21 @@ func CreateChatSocket(uid uint, conn *websocket.Conn) error {
 	userChannel.UserInfo = u
 	// 初始化
 	userChannel.MegList = make(chan MsgInfo, 10)
-	userChannel.ChatList = make(map[uint]*websocket.Conn)
+	userChannel.Tid = tid
 	// 该用户上线
 	Severe.Register <- userChannel
 
-	// 并发利用ws监听用户发送的信息已经利用ws给用户发信息
+	// 并发利用ws监听用户发送的信息以及利用ws给用户发信息
 	go userChannel.Read()
 	go userChannel.Write()
 	return nil
 }
 
-// Write 利用ws向前端用户推送信息
+// Writer 监听写入数据
 func (uc *UserChannel) Write() {
-	for { // 当前端断开ws连接的时候，自动跳出for循环
-		select { // 一直监听channel，有要发送给用户的信息就取出推送给前端用户
+	for {
+		select {
 		case msg := <-uc.MegList:
-			//fmt.Println("推送！")
 			response.SuccessWs(uc.Socket, msg.Type, msg.Data)
 		}
 	}
@@ -109,25 +118,12 @@ func (uc *UserChannel) Read() {
 		if err = json.Unmarshal(text, info); err != nil {
 			response.ErrorWs(uc.Socket, "发送的消息格式错误")
 		}
-		switch info.Type {
-		// todo:这里接收到信息后没有做任何处理和相应，说明重点是后端向前端推送信息，前端不会向后端发送信息或者说前端发送的信息没用
-		}
-	}
-}
+		// todo: 使用敏感词过滤器，判断前端用户发来的信息中是否有敏感词
 
-// ChatMessage 推送离线时未读私信
-func (uc *UserChannel) ChatMessage(msgType string) {
-	cl := new(chat.ChatsListInfo)
-	unreadNum := cl.GetUnreadNumber(uc.UserInfo.ID)
-	if *unreadNum > 0 {
-		// 存在离线时接收的未读私信,直接推送已经存在的私信列表与聊天信息
-		//fmt.Printf("未读私信数量为：%d\n", *unreadNum)
-		list, err := users.GetChatList(uc.UserInfo.ID)
-		if err != nil {
-			fmt.Println("查询聊天记录错误")
-			return
+		switch info.Type {
+		case "sendChatMsgText":
+			// 给tid发送信息
+			sendChatMsgText(uc, uc.UserInfo.ID, uc.Tid, info)
 		}
-		// 推送
-		uc.MegList <- MsgInfo{msgType, list}
 	}
 }

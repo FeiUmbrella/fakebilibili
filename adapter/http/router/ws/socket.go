@@ -12,5 +12,6 @@ func (r *RouterGroup) InitSocketRouter(Router *gin.RouterGroup) {
 		userControllers := new(users.UserControllers)
 		socketRouter.GET("/noticeSocket", userControllers.NoticeSocket)
 		socketRouter.GET("/chatSocket", userControllers.ChatSocket)
+		socketRouter.GET("/chatUserSocket", userControllers.ChatByUserSocket)
 	}
 }

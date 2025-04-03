@@ -71,3 +71,34 @@ func (cl *ChatsListInfo) GetUnreadNumber(uid uint) *int64 {
 	}
 	return &num
 }
+
+// UnreadEmpty uid用户在与tid用户的聊天界面，清空uid用户的接收到的信息的“未读”状态
+func (cl *ChatsListInfo) UnreadEmpty(uid, tid uint) error {
+	err := global.MysqlDb.Model(&ChatsListInfo{}).
+		Where("uid = ? AND tid = ?", uid, tid).
+		First(cl).Error
+	if err != nil {
+		return fmt.Errorf("获取两用户间聊天列表失败")
+	}
+	cl.Unread = 0 // 更新为已读
+	return global.MysqlDb.Model(&ChatsListInfo{}).
+		Where("uid = ? AND tid = ?", uid, tid).
+		Save(cl).Error
+
+}
+
+// UnreadAutoCorrection 私信列表中某一聊天未读记录数量++
+func (cl *ChatsListInfo) UnreadAutoCorrection(uid, tid uint) error {
+	err := global.MysqlDb.Model(&ChatsListInfo{}).
+		Where("uid = ? AND tid = ?", uid, tid).First(cl).Error
+	if err != nil {
+		return err
+	}
+	cl.Unread++
+	return global.MysqlDb.Save(cl).Error
+}
+
+// FindByID 查找uid用户私信列表中关于tid的一条记录
+func (cl *ChatsListInfo) FindByID(uid, tid uint) error {
+	return global.MysqlDb.Where("uid = ? AND tid = ?", uid, tid).First(cl).Error
+}
