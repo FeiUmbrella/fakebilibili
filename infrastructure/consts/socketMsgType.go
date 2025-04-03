@@ -15,6 +15,6 @@ const (
 	ChatSendTextMsg = "chatSendTextMsg"
 	// ChatUnreadNotice 聊天消息未读通知
 	ChatUnreadNotice = "chatUnreadNotice"
-	// todo:这个表示什么意思，怎么chat又notice？
-	ChatOnlineUnreadNotice = "chatOnlineUnreadNotice"
+	// ChatOnlineUnreadMsg 用户上线后推送未读私信
+	ChatOnlineUnreadMsg = "chatOnlineUnreadMsg"
 )

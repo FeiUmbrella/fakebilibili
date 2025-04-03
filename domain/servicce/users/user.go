@@ -535,3 +535,32 @@ func DeleteChatItem(data *receive.DeleteChatItemReceiveStruct, uid uint) (interf
 	}
 	return "删除聊天记录成功", nil
 }
+
+//// GetChatList 获取uid的未读私信列表
+//func GetChatList(uid uint) (interface{}, error) {
+//	cList := new(chat.ChatList)
+//	err := cList.GetListByID(uid)
+//	if err != nil {
+//		return nil, fmt.Errorf("查询用户聊天列表失败")
+//	}
+//	// 与uid聊过天的所有tid
+//	ids := make([]uint, 0)
+//	for _, chatInfo := range *cList {
+//		ids = append(ids, chatInfo.Tid)
+//	}
+//	// 找到与uid聊过天的tid所有信息记录
+//	msgList := make(map[uint]*chat.MsgList)
+//	for _, tid := range ids {
+//		ml := new(chat.MsgList)
+//		err = ml.FindList(uid, tid)
+//		if err != nil {
+//			break
+//		}
+//		msgList[tid] = ml
+//	}
+//	res, err := response.GetChatListResponse(cList, msgList)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return res, nil
+//}

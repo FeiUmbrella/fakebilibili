@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fakebilibili/infrastructure/model/user"
 	"fakebilibili/infrastructure/pkg/global"
+	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
@@ -57,4 +58,16 @@ func (cl *ChatsListInfo) AddChat() error {
 // DeleteChat 删除聊天记录
 func (cl *ChatsListInfo) DeleteChat(tid, uid uint) error {
 	return global.MysqlDb.Where("uid = ? AND tid = ?", uid, tid).Delete(cl).Error
+}
+
+// GetUnreadNumber 获取用户未读私信数量
+func (cl *ChatsListInfo) GetUnreadNumber(uid uint) *int64 {
+	var num int64
+	err := global.MysqlDb.Model(&ChatsListInfo{}).
+		Select("SUM(IFNULL(unread,0)) as total_unread").
+		Where("uid = ?", uid).Scan(&num).Error
+	if err != nil {
+		fmt.Println(err)
+	}
+	return &num
 }
