@@ -12,4 +12,7 @@ const (
 
 	// TokenString 用户的Auth Token后缀
 	TokenString = "tokenString"
+
+	// LiveRoomHistoricalBarrage 近期的历史弹幕存入redis
+	LiveRoomHistoricalBarrage = "liveRoomHistoricalBarrage_"
 )

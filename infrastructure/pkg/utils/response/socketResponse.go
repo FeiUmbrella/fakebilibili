@@ -2,7 +2,9 @@ package response
 
 import (
 	"fakebilibili/infrastructure/consts"
+	"fakebilibili/infrastructure/proto/pb"
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
 )
 
 type DataWs struct {
@@ -51,4 +53,14 @@ func ErrorWs(ws *websocket.Conn, msg string) {
 	if err != nil {
 		return
 	}
+}
+
+// ErrorWsProto 使用proto类型返回错误
+func ErrorWsProto(ws *websocket.Conn, msg string) {
+	message := &pb.Message{
+		MsgType: consts.Error,
+		Data:    []byte(msg),
+	}
+	res, _ := proto.Marshal(message)
+	_ = ws.WriteMessage(websocket.BinaryMessage, res)
 }
