@@ -4,7 +4,7 @@ const (
 	// VideoSocketTypeError ws视频推送错误
 	VideoSocketTypeError = "error"
 	// VideoSocketTypeNumber 返回在线观看人数
-	VideoSocketTypeNumber = "numberOfViewers"
+	VideoSocketTypeNumberOfViewers = "numberOfViewers"
 	// VideoSocketTypeSendBarrage 发送弹幕
 	VideoSocketTypeSendBarrage = "sendBarrage"
 	// VideoSocketTypeSendBarrage 发送弹幕 todo:这个是啥？

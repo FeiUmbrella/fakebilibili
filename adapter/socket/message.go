@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"fakebilibili/domain/servicce/contribution/socket"
 	"fakebilibili/domain/servicce/live"
 	"fakebilibili/domain/servicce/users"
 	"fakebilibili/domain/servicce/users/chat"
@@ -17,4 +18,6 @@ func init() {
 	go chatUser.Severe.Start()
 	// 前端用户进入直播间，发送弹幕推送给直播间其他用户、向新进入直播间的用户推送历史弹幕、用户退出/进入直播间时向直播间其他用户广播
 	go live.Severe.Start()
+	// 当有用户观看/退出观看某一视频时，给观看该视频的所有观众推送观看人数
+	go socket.Severe.Start()
 }
