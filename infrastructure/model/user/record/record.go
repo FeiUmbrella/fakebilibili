@@ -1,6 +1,7 @@
 package record
 
 import (
+	"errors"
 	"fakebilibili/infrastructure/model/common"
 	"fakebilibili/infrastructure/model/contribution/article"
 	"fakebilibili/infrastructure/model/contribution/video"
@@ -54,4 +55,23 @@ func (r *Record) DeleteRecordByID(id, uid uint) error {
 		Model(&Record{}).
 		Where("id = ? AND uid = ?", id, uid).
 		Delete(r).Error
+}
+
+// AddLiveRecord 添加观看直播的记录 uid是用户，roomId是直播间ID也是直播间主播ID
+func (r *Record) AddLiveRecord(uid uint, roomId uint) error {
+	err := global.MysqlDb.Model(&Record{}).
+		Where("uid = ? AND to_id = ? AND type = ?", uid, roomId, "live").
+		First(r).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// 创建记录
+		r.Uid = uid
+		r.Type = "live"
+		r.ToId = roomId
+		return global.MysqlDb.Create(r).Error
+	}
+	if err != nil {
+		return err
+	}
+	// 存在记录，更新一下
+	return global.MysqlDb.Where("id = ?", r.ID).Updates(r).Error
 }

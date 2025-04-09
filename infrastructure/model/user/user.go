@@ -75,3 +75,16 @@ func (us *User) UpdatePureZero(data map[string]interface{}) bool {
 func (us *User) Find(uid uint) {
 	global.MysqlDb.Model(&User{}).Where("id = ?", uid).Find(&us)
 }
+
+// FindLiveInfo 查询直播间信息
+func (us *User) FindLiveInfo(uid uint) {
+	global.MysqlDb.Model(&User{}).Where("id = ?", uid).Preload("LiveInfo").Find(&us)
+}
+
+// GetBeLiveList 找到id主播直播间信息
+func (usl *UserList) GetBeLiveList(ids []uint) error {
+	return global.MysqlDb.Model(&User{}).
+		Where("id in (?)", ids).
+		Preload("LiveInfo").
+		Find(&usl).Error
+}

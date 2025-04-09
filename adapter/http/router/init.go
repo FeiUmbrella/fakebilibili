@@ -3,6 +3,7 @@ package router
 import (
 	"fakebilibili/adapter/http/middleware"
 	"fakebilibili/adapter/http/router/contribution"
+	"fakebilibili/adapter/http/router/live"
 	"fakebilibili/adapter/http/router/users"
 	"fakebilibili/adapter/http/router/ws"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ type RoutersGroup struct {
 	Users        users.RouterGroup
 	Ws           ws.RouterGroup
 	Contribution contribution.RouterGroup
+	Live         live.RouterGroup
 }
 
 var RoutersGroupApp = new(RoutersGroup)
@@ -28,6 +30,7 @@ func InitRouter() {
 		RoutersGroupApp.Users.SpaceRouter.InitSpaceRouter(PrivateGroup)
 		RoutersGroupApp.Users.InitRouter(PrivateGroup)
 		RoutersGroupApp.Ws.InitSocketRouter(PrivateGroup)
+		RoutersGroupApp.Live.InitLiveRouter(PrivateGroup)
 		RoutersGroupApp.Contribution.VideoRouter.InitVideoRouter(PrivateGroup)
 	}
 	err := router.Run(":8081")

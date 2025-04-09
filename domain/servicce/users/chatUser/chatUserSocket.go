@@ -8,6 +8,7 @@ import (
 	"fakebilibili/infrastructure/model/user/chat"
 	"fakebilibili/infrastructure/pkg/global"
 	"fakebilibili/infrastructure/pkg/utils/response"
+	"github.com/FeiUmbrella/Sensitive_Words_Filter/filter"
 	"github.com/gorilla/websocket"
 )
 
@@ -118,8 +119,12 @@ func (uc *UserChannel) Read() {
 		if err = json.Unmarshal(text, info); err != nil {
 			response.ErrorWs(uc.Socket, "发送的消息格式错误")
 		}
-		// todo: 使用敏感词过滤器，判断前端用户发来的信息中是否有敏感词
-
+		node := filter.NewNode()
+		node.StartMatch(info.Data)
+		if node.IsSensitive() {
+			response.ErrorWs(uc.Socket, "消息中含有敏感词汇！")
+			return
+		}
 		switch info.Type {
 		case "sendChatMsgText":
 			// 给tid发送信息
