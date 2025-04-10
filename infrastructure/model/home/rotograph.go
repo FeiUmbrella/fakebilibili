@@ -1,11 +1,12 @@
 package home
 
 import (
+	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-// todo:这个表是干啥使得？
+// Rotograph 主页的视频轮播图
 type Rotograph struct {
 	gorm.Model
 	Title string         `json:"title" gorm:"column:title;type:varchar(255)"`
@@ -19,4 +20,9 @@ type List []Rotograph
 
 func (Rotograph) TableName() string {
 	return "lv_home_rotograph"
+}
+
+// GetALL 获取轮播图
+func (l *List) GetALL() error {
+	return global.MysqlDb.Find(&l).Error
 }

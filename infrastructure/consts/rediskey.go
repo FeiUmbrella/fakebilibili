@@ -15,4 +15,7 @@ const (
 
 	// LiveRoomHistoricalBarrage 近期的历史弹幕存入redis
 	LiveRoomHistoricalBarrage = "liveRoomHistoricalBarrage_"
+
+	// UniqueVideoRecommendPrefix 将按照热度选出放在主页的视频id保存在bitmap
+	UniqueVideoRecommendPrefix = "uniqueVideoRecommendPrefix_"
 )
