@@ -126,3 +126,17 @@ func (vcl *VideosContributionList) GetHomeVideoList(pageInfo common.PageInfo) er
 	*vcl = append(orderVideos, appendRandomVideos...)
 	return nil
 }
+
+// Search 获取视频title中包含keyword的视频
+func (vcl *VideosContributionList) Search(info common.PageInfo) error {
+	return global.MysqlDb.Where("`title` LIKE ?", "%"+info.Keyword+"%").
+		Preload("Likes").
+		Preload("Comments").
+		Preload("Barrage").
+		Preload("UserInfo").
+		Limit(info.Size).
+		Offset((info.Page - 1) * info.Size).
+		Order("created_at desc").
+		Find(&vcl).Error
+
+}

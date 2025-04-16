@@ -2,6 +2,7 @@ package router
 
 import (
 	"fakebilibili/adapter/http/middleware"
+	"fakebilibili/adapter/http/router/OSSCommonality"
 	"fakebilibili/adapter/http/router/contribution"
 	"fakebilibili/adapter/http/router/home"
 	"fakebilibili/adapter/http/router/live"
@@ -11,11 +12,12 @@ import (
 )
 
 type RoutersGroup struct {
-	Users        users.RouterGroup
-	Ws           ws.RouterGroup
-	Contribution contribution.RouterGroup
-	Live         live.RouterGroup
-	Home         home.RouterGroup
+	Users          users.RouterGroup
+	Ws             ws.RouterGroup
+	Contribution   contribution.RouterGroup
+	Live           live.RouterGroup
+	Home           home.RouterGroup
+	OSSCommonality osscommonality.RouterGroup
 }
 
 var RoutersGroupApp = new(RoutersGroup)
@@ -34,7 +36,9 @@ func InitRouter() {
 		RoutersGroupApp.Ws.InitSocketRouter(PrivateGroup)
 		RoutersGroupApp.Live.InitLiveRouter(PrivateGroup)
 		RoutersGroupApp.Home.InitHomeRouter(PrivateGroup)
+		RoutersGroupApp.OSSCommonality.InitRouter(PrivateGroup)
 		RoutersGroupApp.Contribution.VideoRouter.InitVideoRouter(PrivateGroup)
+
 	}
 	err := router.Run(":8081")
 	if err != nil {

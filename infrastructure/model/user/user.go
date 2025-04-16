@@ -2,6 +2,7 @@ package user
 
 import (
 	"crypto/md5"
+	"fakebilibili/infrastructure/model/common"
 	"fakebilibili/infrastructure/model/user/liveInfo"
 	"fakebilibili/infrastructure/pkg/global"
 	"fmt"
@@ -87,4 +88,9 @@ func (usl *UserList) GetBeLiveList(ids []uint) error {
 		Where("id in (?)", ids).
 		Preload("LiveInfo").
 		Find(&usl).Error
+}
+
+// Search 查找username中包含keyword的用户
+func (usl *UserList) Search(info common.PageInfo) error {
+	return global.MysqlDb.Where("`username` LIKE ?", "%"+info.Keyword+"%").Find(&usl).Error
 }

@@ -1,0 +1,14 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
+      <functions>
+        <function importPath="os" name="Create" />
+        <function importPath="os" name="OpenFile" />
+      </functions>
+      <methods>
+        <method importPath="github.com/alibabacloud-go/ice-20201109/v2/client" receiver="*Client" name="RegisterMediaInfo" />
+      </methods>
+    </inspection_tool>
+  </profile>
+</component>
