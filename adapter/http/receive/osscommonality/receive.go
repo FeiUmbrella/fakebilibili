@@ -42,6 +42,6 @@ type SearchStruct struct {
 }
 
 type RegisterMediaStruct struct {
-	Type string `json:"type"` //aliyunOss
-	Path string `json:"path"` // E:/video/hash.mp4
+	Type string `json:"type" form:"type"` //aliyunOss
+	Path string `json:"path" form:"path"` // E:/video/hash.mp4
 }

@@ -1,5 +1,7 @@
 package video
 
+import "fakebilibili/infrastructure/pkg/global"
+
 type WatchRecord struct {
 	Id           int64  `json:"id" gorm:"column:id"`
 	Uid          uint   `json:"uid" gorm:"column:uid"`
@@ -11,4 +13,12 @@ type WatchRecord struct {
 
 func (WatchRecord) TableName() string {
 	return "lv_watch_record"
+}
+
+// GetByUidAndVideoId 返回{uid, vid}的观看记录
+func (wrc *WatchRecord) GetByUidAndVideoId(uid, vid uint) error {
+	return global.MysqlDb.
+		Where("uid = ? AND video_id = ?", uid, vid).
+		Order("create_time desc").
+		First(wrc).Error
 }

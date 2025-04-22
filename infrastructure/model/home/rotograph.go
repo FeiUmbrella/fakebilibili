@@ -13,7 +13,7 @@ type Rotograph struct {
 	Cover datatypes.JSON `json:"cover" gorm:"column:cover"`
 	Color string         `json:"color" gorm:"column:color;type:varchar(255)" `
 	Type  string         `json:"type" gorm:"column:type;type:varchar(255)"`
-	ToId  uint           `json:"to_id" gorm:"column:to_id"`
+	ToId  uint           `json:"to_id" gorm:"column:to_id"` // todo:这个什么意思？
 }
 
 type List []Rotograph

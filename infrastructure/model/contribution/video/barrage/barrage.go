@@ -2,11 +2,12 @@ package barrage
 
 import (
 	"fakebilibili/infrastructure/model/user"
+	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-// Barrage 弹幕... (搜出来的意思是：掩护炮火，阻击火网；接二连三)
+// Barrage 弹幕
 type Barrage struct {
 	gorm.Model
 	Uid     uint    `json:"uid"`
@@ -37,4 +38,16 @@ type VideoInfo struct {
 
 func (VideoInfo) TableName() string {
 	return "lv_video_contribution"
+}
+
+// GetVideoBarrageByID 查询视频弹幕
+func (bl *BarragesList) GetVideoBarrageByID(vid uint) bool {
+	err := global.MysqlDb.Where("video_id = ?", vid).Find(&bl).Error
+	return err == nil
+}
+
+// Create 创建弹幕
+func (b *Barrage) Create() bool {
+	err := global.MysqlDb.Create(&b).Error
+	return err == nil
 }

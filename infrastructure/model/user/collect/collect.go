@@ -66,3 +66,19 @@ func (cl *CollectsList) FindVideosByFavoriteID(fid uint) error {
 		Preload("VideoInfo").
 		Find(&cl).Error
 }
+
+// FindIsCollectByFavorites 判断某一用户的所有收藏夹中是否收藏了视频
+func (cl *CollectsList) FindIsCollectByFavorites(vID uint, fIDs []uint) bool {
+	// 没创建收藏夹，直接return false
+	if len(fIDs) == 0 {
+		return false
+	}
+	err := global.MysqlDb.
+		Where("video_id=?", vID).
+		Where("favorites_id IN (?)", fIDs).
+		Find(&cl).Error
+	if err != nil || len(*cl) == 0 {
+		return false
+	}
+	return true
+}

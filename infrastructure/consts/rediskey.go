@@ -18,4 +18,15 @@ const (
 
 	// UniqueVideoRecommendPrefix 将按照热度选出放在主页的视频id保存在bitmap
 	UniqueVideoRecommendPrefix = "uniqueVideoRecommendPrefix_"
+
+	//查询视频相关信息
+	VideoBarragePrefix     = "videoBarrageOf_"         //查询视频的弹幕信息
+	VideoCommentZSetPrefix = "VideoCommentZSetPrefix_" //zset中一个视频的key
+	VideoCommentHashPrefix = "VideoCommentHashPrefix_" // hash中一个视频的key
+
+	//VideoWatchByID 观看视频
+	VideoWatchByID = "videoWatchBy_"
+
+	// 推荐视频列表信息
+	RecommendVideosList = "RecommendVideosList"
 )

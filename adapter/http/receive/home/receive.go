@@ -9,6 +9,6 @@ type GetHomeInfoReceiveStruct struct {
 
 // SubmitBugReceiveStruct 用户反馈bug
 type SubmitBugReceiveStruct struct {
-	Content string `json:"content" binding:"required"`
-	Phone   string `json:"phone"`
+	Content string `json:"content" binding:"required" form:"content"`
+	Phone   string `json:"phone" form:"phone"`
 }

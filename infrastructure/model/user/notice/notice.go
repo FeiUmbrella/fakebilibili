@@ -121,3 +121,13 @@ func (nt *Notice) AddNotice(uid uint, cid uint, tid uint, tp string, content str
 	nt.ISRead = 0
 	return global.MysqlDb.Create(nt).Error
 }
+
+// Delete 删除通知信息
+func (nt *Notice) Delete(uid uint, cid uint, tid uint, tp string) error {
+	return global.MysqlDb.Where(&Notice{
+		Uid:  uid,
+		Cid:  cid,
+		Type: tp,
+		ToID: tid,
+	}).Delete(nt).Error
+}

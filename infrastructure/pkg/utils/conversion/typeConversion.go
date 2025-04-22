@@ -6,3 +6,7 @@ func Bool2Int8(b bool) int8 {
 	}
 	return int8(0)
 }
+
+func Int82Bool(b int8) bool {
+	return b > 0
+}

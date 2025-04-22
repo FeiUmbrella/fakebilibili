@@ -6,8 +6,10 @@ import (
 	"fakebilibili/infrastructure/pkg/global"
 	"fakebilibili/infrastructure/pkg/utils/jwt"
 	response2 "fakebilibili/infrastructure/pkg/utils/response"
+	"fakebilibili/infrastructure/pkg/utils/validator"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/gorilla/websocket"
 	"net/http"
 )
@@ -108,6 +110,42 @@ func VerificationTokenAsSocket() gin.HandlerFunc {
 		c.Set("uid", claim.UserID)
 		c.Set("currentUserName", u.Username)
 		c.Set("conn", conn) // 将为该用户创建的ws传入，方面后面取出使用
+		c.Next()
+	}
+}
+
+// VerificationTokenAsParameter body参数中携带token，使用shouldBind进行单次参数绑定/使用shouldBindBodyWith多次绑定
+func VerificationTokenAsParameter() gin.HandlerFunc {
+	type tokenTempStruct struct {
+		Token string `json:"token"`
+	}
+	return func(c *gin.Context) {
+		rec := new(tokenTempStruct)
+		/*
+			一般方法都是通过调用 c.Request.Body 方法绑定数据，但不能多次调用这个方法，例如c.ShouldBind，不可重用
+			c.ShouldBindBodyWith 会在绑定之前将 body 存储到上下文中，可以多次绑定
+		*/
+		// 读取 c.Request.Body 并将结果存入上下文。
+		if err := c.ShouldBindBodyWith(rec, binding.JSON); err != nil {
+			validator.CheckParams(c, err) // 对数据校验时产生的错误进一步分析
+			return
+		}
+		token := rec.Token
+		claim, err := jwt.ParseToken(token)
+		if err != nil {
+			response2.NotLogin(c, "Token过期")
+			c.Abort()
+			return
+		}
+		u := new(user.User)
+		if !u.IsExistByField("id", claim.UserID) {
+			// 不存在这个用户
+			response2.NotLogin(c, "用户异常")
+			c.Abort()
+			return
+		}
+		c.Set("uid", claim.UserID)
+		c.Set("currentUserName", u.Username)
 		c.Next()
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"fakebilibili/infrastructure/pkg/database/mysql"
 	redis2 "fakebilibili/infrastructure/pkg/database/redis"
 	log "fakebilibili/infrastructure/pkg/logrus"
-	"fakebilibili/infrastructure/pkg/msgqueue"
 	"github.com/go-redis/redis"
 	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
@@ -27,6 +26,6 @@ func init() {
 	Logger = log.Logger      // 全局日志
 	MysqlDb = mysql.MysqlDb  // 全局数据库
 	RedisDb = redis2.RedisDb // 全局Redis
-	NormalProducer = msgqueue.ReturnNormalInstance()
-	DelayProducer = msgqueue.ReturnDelayInstance()
+	//NormalProducer = msgqueue.ReturnNormalInstance()
+	//DelayProducer = msgqueue.ReturnDelayInstance()
 }

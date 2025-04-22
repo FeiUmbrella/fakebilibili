@@ -53,3 +53,14 @@ func NotLogin(ctx *gin.Context, msg string) {
 	}
 	ctx.JSON(http.StatusOK, rd)
 }
+
+// BarrageSuccess 弹幕播放器响应
+func BarrageSuccess(ctx *gin.Context, data interface{}) {
+	rd := &Data{
+		Code:    0,
+		Message: CodeSuccess.Msg(),
+		Data:    data,
+		Version: 3,
+	}
+	ctx.JSON(http.StatusOK, rd)
+}

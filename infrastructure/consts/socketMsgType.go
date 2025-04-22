@@ -5,9 +5,8 @@ const (
 	VideoSocketTypeError = "error"
 	// VideoSocketTypeNumber 返回在线观看人数
 	VideoSocketTypeNumberOfViewers = "numberOfViewers"
-	// VideoSocketTypeSendBarrage 发送弹幕
-	VideoSocketTypeSendBarrage = "sendBarrage"
-	// VideoSocketTypeSendBarrage 发送弹幕 todo:这个是啥？
+	// VideoSocketTypeSendBarrage 发送视频弹幕，并通知视频房间里的所有人
+	VideoSocketTypeSendBarrage        = "sendBarrage"
 	VideoSocketTypeResponseBarrageNum = "responseBarrageNum"
 	// NoticeSocketTypeMessage 消息通知
 	NoticeSocketTypeMessage = "messageNotice"
