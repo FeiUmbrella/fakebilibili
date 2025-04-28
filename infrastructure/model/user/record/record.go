@@ -101,3 +101,22 @@ func (r *Record) AddVideoRecord(uid uint, videoId uint) error {
 	// 存在记录，更新一下
 	return global.MysqlDb.Where("id = ?", r.ID).Updates(r).Error
 }
+
+// AddArticleRecord 添加观看文章的记录
+func (r *Record) AddArticleRecord(uid uint, articleId uint) error {
+	err := global.MysqlDb.Model(&Record{}).
+		Where("uid = ? AND to_id = ? AND type = ?", uid, articleId, "article").
+		First(r).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// 创建记录
+		r.Uid = uid
+		r.Type = "article"
+		r.ToId = articleId
+		return global.MysqlDb.Create(r).Error
+	}
+	if err != nil {
+		return err
+	}
+	// 存在记录，更新一下
+	return global.MysqlDb.Where("id = ?", r.ID).Updates(r).Error
+}

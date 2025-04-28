@@ -38,7 +38,7 @@ func InitRouter() {
 		RoutersGroupApp.Home.InitHomeRouter(PrivateGroup)
 		RoutersGroupApp.OSSCommonality.InitRouter(PrivateGroup)
 		RoutersGroupApp.Contribution.VideoRouter.InitVideoRouter(PrivateGroup)
-
+		RoutersGroupApp.Contribution.ArticleRouter.InitArticleRouter(PrivateGroup)
 	}
 	err := router.Run(":8081")
 	if err != nil {

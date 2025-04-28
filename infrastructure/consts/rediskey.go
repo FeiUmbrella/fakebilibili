@@ -25,7 +25,8 @@ const (
 	VideoCommentHashPrefix = "VideoCommentHashPrefix_" // hash中一个视频的key
 
 	//VideoWatchByID 观看视频
-	VideoWatchByID = "videoWatchBy_"
+	VideoWatchByID   = "videoWatchBy_"
+	ArticleWatchByID = "articleWatchBy_" // 观看文章
 
 	// 推荐视频列表信息
 	RecommendVideosList = "RecommendVideosList"
