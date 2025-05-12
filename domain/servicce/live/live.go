@@ -16,33 +16,41 @@ import (
 
 // GetLiveRoom 返回开播时对应直播间推流地址和推流码
 func GetLiveRoom(uid uint) (interface{}, error) {
-	// 请求直播服务器 http://127.0.0.1:8090/control/get?room=${uid}
-	// todo:注意这里的推流地址的格式，后面配置媒体服务器可能要用
-	url := global.Config.LiveConfig.Agreement + "://" + global.Config.LiveConfig.IP + ":" +
-		global.Config.LiveConfig.Api + "/control/get?room=" + strconv.Itoa(int(uid))
-	// 创建http get请求
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
+	//// 请求直播服务器 http://127.0.0.1:8090/control/get?room=${uid}
+	//// todo:注意这里的推流地址的格式，后面配置媒体服务器可能要用
+	//url := global.Config.LiveConfig.Agreement + "://" + global.Config.LiveConfig.IP + ":" +
+	//	global.Config.LiveConfig.Api + "/control/get?room=" + strconv.Itoa(int(uid))
+	//// 创建http get请求
+	//resp, err := http.Get(url)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//defer func(Body io.ReadCloser) {
+	//	err := Body.Close()
+	//	if err != nil {
+	//
+	//	}
+	//}(resp.Body)
+	//// 将回复中body的数据解析到定义结构体中
+	//ReqGetRoom := new(live.ReqGetRoom)
+	//decoder := json.NewDecoder(resp.Body)
+	//if err := decoder.Decode(ReqGetRoom); err != nil {
+	//	return nil, err
+	//}
+	//if ReqGetRoom.Status != 200 {
+	//	return nil, fmt.Errorf("获取直播地址失败")
+	//}
+	//// 推流地址rtmp://127.0.0.1:1935/live  推流码：ReqGetRoom.Data
+	//return live2.GetLiveRoomResponse("rtmp://"+global.Config.LiveConfig.IP+
+	//	":"+global.Config.LiveConfig.RTMP+"/live", ReqGetRoom.Data), nil
 
-		}
-	}(resp.Body)
-	// 将回复中body的数据解析到定义结构体中
+	// rtmp推流为 rtmp://47.97.31.45:1935/app
+	// 推流码为 room-${uid}
 	ReqGetRoom := new(live.ReqGetRoom)
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(ReqGetRoom); err != nil {
-		return nil, err
-	}
-	if ReqGetRoom.Status != 200 {
-		return nil, fmt.Errorf("获取直播地址失败")
-	}
-	// 推流地址rtmp://127.0.0.1:1935/live  推流码：ReqGetRoom.Data
-	return live2.GetLiveRoomResponse("rtmp://"+global.Config.LiveConfig.IP+
-		":"+global.Config.LiveConfig.RTMP+"/live", ReqGetRoom.Data), nil
+	ReqGetRoom.Data = fmt.Sprintf("room-%d", uid)
+	address := "rtmp://" + global.Config.LiveConfig.IP + ":" + global.Config.LiveConfig.RTMP + "/app"
+	fmt.Println(address, ReqGetRoom.Data)
+	return live2.GetLiveRoomResponse(address, ReqGetRoom.Data), nil
 }
 
 // GetLiveRoomInfo 给前端返回直播间信息及直播间拉流地址
@@ -50,11 +58,16 @@ func GetLiveRoomInfo(data live.GetLiveRoomInfoReceiveStruct, uid uint) (interfac
 	userInfo := new(user.User)
 	userInfo.FindLiveInfo(data.RoomID) // 查询直播间信息，直播间ID就是主播的uid
 
-	// todo:注意这里拉流的地址，后面配置媒体服务器可能要用
-	//拉流地址 http://8.138.149.242:7001/live/37.flv
-	flv := global.Config.LiveConfig.Agreement + "://" + global.Config.LiveConfig.IP + ":" +
-		global.Config.LiveConfig.FLV + "/live/" + strconv.Itoa(int(data.RoomID)) + ".flv"
+	////拉流地址 http://8.138.149.242:7001/live/37.flv
+	//flv := global.Config.LiveConfig.Agreement + "://" + global.Config.LiveConfig.IP + ":" +
+	//	global.Config.LiveConfig.FLV + "/live/" + strconv.Itoa(int(data.RoomID)) + ".flv"
 
+	// flv拉流地址为 http://47.97.31.45:80/live?port=1935&app=app&stream=room-1
+	flv := global.Config.LiveConfig.Agreement + "://" + global.Config.LiveConfig.IP + ":" +
+		global.Config.LiveConfig.FLV + "/live?" + "port=" + global.Config.LiveConfig.RTMP +
+		"&app=app" + "&stream=room-" +
+		strconv.Itoa(int(data.RoomID))
+	fmt.Println(flv)
 	if uid > 0 {
 		// 添加观看直播的历史记录
 		rd := new(record.Record)
@@ -66,9 +79,9 @@ func GetLiveRoomInfo(data live.GetLiveRoomInfoReceiveStruct, uid uint) (interfac
 	return live2.GetLiveRoomInfoResponse(userInfo, flv), nil
 }
 
+// todo:怎么从媒体服务器获取所有publisher的推流地址
 func GetBeLiveList() (interface{}, error) {
-	// http://127.0.0.1:8090//stat/livestat
-	// todo：这里从媒体服务器中获取所有publisher的信息的访问地址，后面配置媒体服务器可能要用
+	// http://47.97.31.45:80/stat/livestat http.Get得到正在推流的推流码room-${uid}
 	url := global.Config.LiveConfig.Agreement + "://" +
 		global.Config.LiveConfig.IP + ":" +
 		global.Config.LiveConfig.Api + "/stat/livestat"
@@ -82,26 +95,31 @@ func GetBeLiveList() (interface{}, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-
 		}
 	}(resp.Body)
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("获取直播列表失败")
+	}
 	// 将回复中body的数据解析到定义结构体中
 	livestat := new(live.LivestatRes)
 	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(livestat); err != nil {
 		return nil, err
 	}
-	if livestat.Status != 200 {
-		return nil, fmt.Errorf("获取直播列表失败")
-	}
 
 	keys := make([]uint, 0)
-	for _, kv := range livestat.Data.Publishers {
-		// todo:这里获取到的kv是以 live/${id} 结尾的，这里的id就是publisher的uid，配置媒体服务器可能要用
-		k := strings.Split(kv.Key, "live/")
-		uintKey, _ := strconv.ParseUint(k[1], 10, 19)
-		keys = append(keys, uint(uintKey))
+	for _, server := range livestat.HTTPFLV.Servers {
+		for _, app := range server.Applications {
+			for _, stream := range app.Live.Streams {
+				// stream.Name: room-${uid}
+				k := strings.Split(stream.Name, "-")
+				uintKey, _ := strconv.ParseUint(k[1], 10, 19)
+				keys = append(keys, uint(uintKey))
+			}
+		}
 	}
+
 	global.Logger.Infof("查询userList的keys为%v", keys)
 	userList := new(user.UserList)
 	if len(keys) > 0 {
