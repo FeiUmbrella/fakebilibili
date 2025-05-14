@@ -464,9 +464,9 @@ func GetRecordListResponse(rl *record.RecordList) (data interface{}, err error) 
 type GetNoticeListItem struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`
-	CID       uint      `json:"cid"`
+	CID       *uint     `json:"cid"`
 	Type      string    `json:"type"`
-	ToID      uint      `json:"to_id"`
+	ToID      *uint     `json:"to_id"`
 	Photo     string    `json:"photo"`
 	Comment   string    `json:"comment"`
 	Cover     string    `json:"cover"`

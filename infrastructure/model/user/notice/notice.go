@@ -10,12 +10,15 @@ import (
 )
 
 // Notice 用户通知（包括：视频/文章评论、点赞、系统通知）
+// 将ToID Cid 设为*uint，在发送日报时，只有Uid，不存在Cid和ToID所以为nil不会使得外键报错
+// 若不设为*uint，那么这个值不能为空，如果填了对应的cid，to_id对应的用户和视频/专栏也必须存在，否则就会报错
+// todo:按理说to_id也要像Record那里一样分为to_video_id和to_article_id，否则会出现一样的问题
 type Notice struct {
 	gorm.Model
 	Uid     uint   `json:"uid"`                           // 接受notice通知的userId
-	Cid     uint   `json:"cid"`                           // 触发这个notice事件的userId
+	Cid     *uint  `json:"cid"`                           // 触发这个notice事件的userId
 	Type    string `json:"type" gorm:"type:varchar(255)"` // (comment,like,system)
-	ToID    uint   `json:"to_id" gorm:"column:to_id"`     // 跳转的视频或文章的id
+	ToID    *uint  `json:"to_id" gorm:"column:to_id"`     // 跳转的视频或文章的id
 	ISRead  uint   `json:"is_read" gorm:"column:is_read"`
 	Content string `json:"content" gorm:"type:text"`
 
@@ -114,8 +117,12 @@ func (nt *Notice) GetUnreadNum(uid uint) *int64 {
 // AddNotice uid：接受notice通知的userId；cid：触发这个notice事件的userId；tid：跳转的视频或文章的id；ty：事件类型；content：通知内容
 func (nt *Notice) AddNotice(uid uint, cid uint, tid uint, tp string, content string) error {
 	nt.Uid = uid
-	nt.Cid = cid
-	nt.ToID = tid
+	if cid != 0 {
+		nt.Cid = &cid
+	}
+	if tid != 0 {
+		nt.ToID = &tid
+	}
 	nt.Type = tp
 	nt.Content = content
 	nt.ISRead = 0
@@ -126,8 +133,8 @@ func (nt *Notice) AddNotice(uid uint, cid uint, tid uint, tp string, content str
 func (nt *Notice) Delete(uid uint, cid uint, tid uint, tp string) error {
 	return global.MysqlDb.Where(&Notice{
 		Uid:  uid,
-		Cid:  cid,
+		Cid:  &cid,
 		Type: tp,
-		ToID: tid,
+		ToID: &tid,
 	}).Delete(nt).Error
 }

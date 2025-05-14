@@ -21,11 +21,11 @@ type Record struct {
 	ToArticleId *uint `json:"to_article_id" gorm:"column:to_article_id"` // 文章 id
 	ToLiveId    *uint `json:"to_live_id" gorm:"column:to_live_id"`       // 观看直播间房号也即是主播uid
 	/*
-		todo：
-			这里外键设置有问题，与VideoInfo和ArticleInfo的外键都是to_id，
-			导致一条(uid=2, type=video, to_id=1)的record，也同时指向article_id=1的文章
-			如果要插入上面这条record，如果id=1的视频存在但id=1的文章不存在就会导致插入失败！
-			可以将外键分开，搞一个to_video_id，一个to_article_id分别作为VideoInfo和Article的外键
+		这里外键设置有问题，与VideoInfo和ArticleInfo的外键都是to_id，
+		导致一条(uid=2, type=video, to_id=1)的record，也同时指向article_id=1的文章
+		如果要插入上面这条record，如果id=1的视频存在但id=1的文章不存在就会导致插入失败！
+		可以将外键分开，搞一个to_video_id，一个to_article_id分别作为VideoInfo和Article的外键
+		(已修改）
 	*/
 	VideoInfo   video.VideosContribution     `json:"videoInfo" gorm:"foreignKey:to_video_id"`
 	UserInfo    user2.User                   `json:"userInfo" gorm:"foreignKey:uid"`
@@ -88,7 +88,7 @@ func (r *Record) AddLiveRecord(uid uint, roomId uint) error {
 
 // AddVideoRecord 添加观看视频的记录
 func (r *Record) AddVideoRecord(uid uint, videoId uint) error {
-	err := global.MysqlDb.Model(&Record{}).Debug().
+	err := global.MysqlDb.Model(&Record{}).
 		Where("uid = ? AND to_video_id = ? AND type = ?", uid, videoId, "video").
 		First(r).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
