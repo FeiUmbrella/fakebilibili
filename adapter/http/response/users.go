@@ -423,28 +423,32 @@ func GetRecordListResponse(rl *record.RecordList) (data interface{}, err error) 
 		var title string
 		var username string
 		var tp string
+		var toId uint
 		if v.Type == "video" {
 			cover, _ = conversion.FormattingJsonSrc(v.VideoInfo.Cover)
 			photo, _ = conversion.FormattingJsonSrc(v.VideoInfo.UserInfo.Photo)
 			title = v.VideoInfo.Title
 			username = v.VideoInfo.UserInfo.Username
 			tp = "视频"
+			toId = *v.ToVideoId
 		} else if v.Type == "article" {
 			cover, _ = conversion.FormattingJsonSrc(v.ArticleInfo.Cover)
 			photo, _ = conversion.FormattingJsonSrc(v.ArticleInfo.UserInfo.Photo)
 			title = v.ArticleInfo.Title
 			username = v.ArticleInfo.UserInfo.Username
 			tp = "专栏"
+			toId = *v.ToArticleId
 		} else {
 			cover, _ = conversion.FormattingJsonSrc(v.UserInfo.LiveInfo.Img)
 			photo, _ = conversion.FormattingJsonSrc(v.UserInfo.Photo)
 			title = v.UserInfo.LiveInfo.Title
 			username = v.UserInfo.Username
 			tp = "直播"
+			toId = *v.ToLiveId
 		}
 		list = append(list, GetRecordListItem{
 			ID:        v.ID,
-			ToID:      v.ToId,
+			ToID:      toId,
 			Title:     title,
 			Cover:     cover,
 			Username:  username,

@@ -170,3 +170,8 @@ type CheckInRequestStruct struct {
 type GetUserIntegralRequest struct {
 	UID uint `json:"uid" binding:"required"`
 }
+
+// GetCaptchaStruct 请求验证码携带的captchaId
+type GetCaptchaStruct struct {
+	CaptchaId string `json:"captcha_id" binding:"required"`
+}

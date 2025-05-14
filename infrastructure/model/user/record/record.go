@@ -7,6 +7,7 @@ import (
 	"fakebilibili/infrastructure/model/contribution/video"
 	user2 "fakebilibili/infrastructure/model/user"
 	"fakebilibili/infrastructure/pkg/global"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -15,8 +16,10 @@ type Record struct {
 	gorm.Model
 	Uid  uint   `json:"uid"`
 	Type string `json:"type" gorm:"type:varchar(255)"` // video/article/live
-	ToId uint   `json:"to_id" gorm:"column:to_id"`     // 浏览的视频/文章 id
 
+	ToVideoId   *uint `json:"to_video_id" gorm:"column:to_video_id"`     // 浏览的视频
+	ToArticleId *uint `json:"to_article_id" gorm:"column:to_article_id"` // 文章 id
+	ToLiveId    *uint `json:"to_live_id" gorm:"column:to_live_id"`       // 观看直播间房号也即是主播uid
 	/*
 		todo：
 			这里外键设置有问题，与VideoInfo和ArticleInfo的外键都是to_id，
@@ -24,9 +27,9 @@ type Record struct {
 			如果要插入上面这条record，如果id=1的视频存在但id=1的文章不存在就会导致插入失败！
 			可以将外键分开，搞一个to_video_id，一个to_article_id分别作为VideoInfo和Article的外键
 	*/
-	VideoInfo   video.VideosContribution     `json:"videoInfo" gorm:"foreignKey:to_id"`
+	VideoInfo   video.VideosContribution     `json:"videoInfo" gorm:"foreignKey:to_video_id"`
 	UserInfo    user2.User                   `json:"userInfo" gorm:"foreignKey:uid"`
-	ArticleInfo article.ArticlesContribution `json:"articleInfo" gorm:"foreignKey:to_id"`
+	ArticleInfo article.ArticlesContribution `json:"articleInfo" gorm:"foreignKey:to_article_id"`
 }
 type RecordList []Record
 
@@ -67,13 +70,13 @@ func (r *Record) DeleteRecordByID(id, uid uint) error {
 // AddLiveRecord 添加观看直播的记录 uid是用户，roomId是直播间ID也是直播间主播ID
 func (r *Record) AddLiveRecord(uid uint, roomId uint) error {
 	err := global.MysqlDb.Model(&Record{}).
-		Where("uid = ? AND to_id = ? AND type = ?", uid, roomId, "live").
+		Where("uid = ? AND to_live_id = ? AND type = ?", uid, roomId, "live").
 		First(r).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 创建记录
 		r.Uid = uid
 		r.Type = "live"
-		r.ToId = roomId
+		r.ToLiveId = &roomId
 		return global.MysqlDb.Create(r).Error
 	}
 	if err != nil {
@@ -85,15 +88,17 @@ func (r *Record) AddLiveRecord(uid uint, roomId uint) error {
 
 // AddVideoRecord 添加观看视频的记录
 func (r *Record) AddVideoRecord(uid uint, videoId uint) error {
-	err := global.MysqlDb.Model(&Record{}).
-		Where("uid = ? AND to_id = ? AND type = ?", uid, videoId, "video").
+	err := global.MysqlDb.Model(&Record{}).Debug().
+		Where("uid = ? AND to_video_id = ? AND type = ?", uid, videoId, "video").
 		First(r).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 创建记录
 		r.Uid = uid
 		r.Type = "video"
-		r.ToId = videoId
-		return global.MysqlDb.Create(r).Error
+		r.ToVideoId = &videoId
+		err := global.MysqlDb.Create(r).Error
+		fmt.Println(err)
+		return err
 	}
 	if err != nil {
 		return err
@@ -105,13 +110,13 @@ func (r *Record) AddVideoRecord(uid uint, videoId uint) error {
 // AddArticleRecord 添加观看文章的记录
 func (r *Record) AddArticleRecord(uid uint, articleId uint) error {
 	err := global.MysqlDb.Model(&Record{}).
-		Where("uid = ? AND to_id = ? AND type = ?", uid, articleId, "article").
+		Where("uid = ? AND to_article_id = ? AND type = ?", uid, articleId, "article").
 		First(r).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 创建记录
 		r.Uid = uid
 		r.Type = "article"
-		r.ToId = articleId
+		r.ToArticleId = &articleId
 		return global.MysqlDb.Create(r).Error
 	}
 	if err != nil {
