@@ -122,7 +122,7 @@ func (vcl *VideosContributionList) GetHomeVideoList(pageInfo common.PageInfo) er
 	// 去重后不足5条视频,从筛掉的视频中随机填充到5个
 	if len(appendRandomVideos) < 5 {
 		for i, j := 0, 5-len(appendRandomVideos); i < j; i++ {
-			fmt.Println(i)
+			//fmt.Println(i)
 			appendRandomVideos = append(appendRandomVideos, skipVideos[rand.Intn(len(skipVideos))])
 		}
 	}

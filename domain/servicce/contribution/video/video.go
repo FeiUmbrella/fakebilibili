@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"github.com/FeiUmbrella/Sensitive_Words_Filter/filter"
 	"github.com/go-redis/redis"
+	"gorm.io/gorm"
 	"math"
 	"os/exec"
 	"strconv"
@@ -588,7 +589,7 @@ func DeleteVideoByPath(data *video.DeleteVideoByPathReceiveStruct) (results inte
 // GetLastWatchTime 返回上次观看视频的进度
 func GetLastWatchTime(uid, vid uint) (results interface{}, err error) {
 	r := new(video3.WatchRecord)
-	if err := r.GetByUidAndVideoId(uid, vid); err != nil {
+	if err := r.GetByUidAndVideoId(uid, vid); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("查询视频观看进度失败：%v", err)
 	}
 	return r.WatchTime, nil
