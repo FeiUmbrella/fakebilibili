@@ -2,10 +2,12 @@ package main
 
 import (
 	"fakebilibili/adapter/http/router"
-	"fakebilibili/domain/servicce/contribution/socket"
+	_ "fakebilibili/adapter/socket"
+	_ "fakebilibili/infrastructure/pkg/database"
+	_ "fakebilibili/infrastructure/pkg/database/mysql"
+	_ "fakebilibili/infrastructure/pkg/database/redis"
 )
 
 func main() {
-	go socket.Severe.Start()
 	router.InitRouter()
 }
