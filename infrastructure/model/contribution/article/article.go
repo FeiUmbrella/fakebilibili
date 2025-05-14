@@ -102,7 +102,8 @@ func (ac *ArticlesContribution) GetArticleComments(aid uint, pageInfo common.Pag
 		Preload("Classification").
 		Preload("Comments", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("UserInfo").
-				Limit(pageInfo.Size).Offset((pageInfo.Page - 1) * pageInfo.Size).
+				// 前端没有传入PageInfo，导致PageInfo一直为{0,0},查询数据库返回为空，所以直接注释掉返回全部文章评论
+				//Limit(pageInfo.Size).Offset((pageInfo.Page - 1) * pageInfo.Size).
 				Order("created_at desc")
 		}).Find(ac).Error
 	return err == nil

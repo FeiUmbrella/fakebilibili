@@ -40,7 +40,7 @@ func GetArticleContributionListByUser(data *article.GetArticleContributionListBy
 // GetArticleComment 获取文章评论
 func GetArticleComment(data *article.GetArticleCommentReceiveStruct) (results interface{}, err error) {
 	articlesList := &article2.ArticlesContribution{}
-	if articlesList.GetArticleComments(data.ArticleID, data.PageInfo) {
+	if !articlesList.GetArticleComments(data.ArticleID, data.PageInfo) {
 		return nil, fmt.Errorf("查询失败")
 	}
 	return article3.GetArticleContributionCommentsResponse(articlesList), nil
@@ -95,7 +95,7 @@ func GetArticleContributionByID(data *article.GetArticleContributionByIDReceiveS
 			articles.Heat++
 		}
 	}
-	return
+	return article3.GetArticleContributionByIDResponse(articles), nil
 }
 
 // CreateArticleContribution 发布文章
