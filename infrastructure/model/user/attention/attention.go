@@ -1,6 +1,7 @@
 package attention
 
 import (
+	"errors"
 	user2 "fakebilibili/infrastructure/model/user"
 	"fakebilibili/infrastructure/pkg/global"
 	"gorm.io/gorm"
@@ -86,4 +87,16 @@ func (at *Attention) Attention(uidA, uidB uint) bool {
 		}
 	}
 	return true
+}
+
+// GetNewAddAttentionByTime 获取某时刻以后新增的粉丝数量
+func (at *Attention) GetNewAddAttentionByTime(time string, uid uint) (cnt int64, err error) {
+	err = global.MysqlDb.Model(&Attention{}).
+		Where("attention_id = ?", uid).
+		Where("created_at > ?", time).
+		Count(&cnt).Error
+	if err != nil {
+		return -1, errors.New("查询新增粉丝数err:" + err.Error())
+	}
+	return
 }

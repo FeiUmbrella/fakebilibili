@@ -26,6 +26,6 @@ func init() {
 	Logger = log.Logger      // 全局日志
 	MysqlDb = mysql.MysqlDb  // 全局数据库
 	RedisDb = redis2.RedisDb // 全局Redis
-	//NormalProducer = msgqueue.ReturnNormalInstance()
-	//DelayProducer = msgqueue.ReturnDelayInstance()
+	//NormalProducer = msgqueue.ReturnNormalInstance() // 即时msq生产者
+	//DelayProducer = msgqueue.ReturnDelayInstance()   // 延迟msq生产者
 }

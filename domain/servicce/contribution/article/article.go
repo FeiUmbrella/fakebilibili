@@ -254,3 +254,15 @@ func GetColumnByClassificationId(data *article.GetColumnByClassificationId, uid 
 	}
 	return article3.GetArticleContributionListResponse(acl), nil
 }
+
+// GetHeatestArticle 获取最热的一篇文章
+func GetHeatestArticle() (res article2.ArticlesContribution, err error) {
+	err = global.MysqlDb.Model(&article2.ArticlesContribution{}).
+		Order("heat DESC").Limit(1).
+		Find(&res).Error
+	if err != nil {
+		global.Logger.Errorf("查询最热门专栏出错：%v", err)
+		return res, err
+	}
+	return
+}

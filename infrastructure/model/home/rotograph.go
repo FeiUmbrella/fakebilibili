@@ -26,3 +26,8 @@ func (Rotograph) TableName() string {
 func (l *List) GetALL() error {
 	return global.MysqlDb.Find(&l).Error
 }
+
+// Create 创建轮播图记录
+func (r *Rotograph) Create(tx *gorm.DB) error {
+	return tx.Model(&Rotograph{}).Create(r).Error
+}

@@ -94,3 +94,9 @@ func (usl *UserList) GetBeLiveList(ids []uint) error {
 func (usl *UserList) Search(info common.PageInfo) error {
 	return global.MysqlDb.Where("`username` LIKE ?", "%"+info.Keyword+"%").Find(&usl).Error
 }
+
+// GetAllUserIds 获取所有用户
+func (usl *UserList) GetAllUserIds() error {
+	return global.MysqlDb.Model(&User{}).
+		Find(&usl).Error
+}

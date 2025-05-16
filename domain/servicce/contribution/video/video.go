@@ -615,3 +615,16 @@ func SendWatchTime(data *video.SendWatchTimeReqStruct, uid uint) error {
 	r.CreateTime = time.Now().Format("2006-01-02 15:04:05")
 	return global.MysqlDb.Model(&video3.WatchRecord{}).Save(&r).Error
 }
+
+// GetTop2HeatVideos 查询最热的2条视频
+func GetTop2HeatVideos() (results video3.VideosContributionList, err error) {
+	err = global.MysqlDb.Model(&video3.VideosContribution{}).
+		Order("heat DESC").Limit(2).
+		Find(&results).Error
+	if err != nil {
+		global.Logger.Errorf("查询最热门的2条视频出错：%s", err.Error())
+		return nil, errors.New("查询最热门的2条视频出错：" + err.Error())
+	}
+	global.Logger.Infoln("查询最热门的两个视频")
+	return
+}

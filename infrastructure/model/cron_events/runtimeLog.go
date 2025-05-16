@@ -1,6 +1,9 @@
 package cron_events
 
-import "gorm.io/gorm"
+import (
+	"fakebilibili/infrastructure/pkg/global"
+	"gorm.io/gorm"
+)
 
 // RuntimeLogEntry 日志的结构体
 type RuntimeLogEntry struct {
@@ -14,4 +17,9 @@ type RuntimeLogEntry struct {
 
 func (RuntimeLogEntry) TableName() string {
 	return "lv_runtime_log"
+}
+
+// Create 创建一条log记录
+func (le *RuntimeLogEntry) Create() error {
+	return global.MysqlDb.Create(le).Error
 }
