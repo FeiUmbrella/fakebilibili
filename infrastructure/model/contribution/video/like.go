@@ -65,7 +65,7 @@ func (lk *Likes) Like(uid uint, videoID uint, videoUid uint) error {
 
 			// 添加消息通知视频作者
 			nt := new(notice.Notice)
-			err = nt.AddNotice(videoUid, uid, videoID, notice.VideoLike, "攒了您的作品")
+			err = nt.AddNotice(videoUid, uid, videoID, notice.VideoLike, "赞了您的作品")
 			if err != nil {
 				return err
 			}

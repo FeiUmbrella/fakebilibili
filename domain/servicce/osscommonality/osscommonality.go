@@ -51,10 +51,8 @@ func Upload(file *multipart.FileHeader, ctx *gin.Context) (interface{}, error) {
 	}
 	mForm := ctx.Request.MultipartForm
 	// 文件名
-	// todo: 这里fileName为空，join的话会使得传进来的文件名直接相连吧？
 	var fileName string
 	fileName = strings.Join(mForm.Value["name"], fileName)
-	// todo:这里fileInterface也同样为空，直接使用了Join？
 	var fileInterface string
 	fileInterface = strings.Join(mForm.Value["interface"], fileInterface)
 

@@ -17,7 +17,6 @@ import (
 // GetLiveRoom 返回开播时对应直播间推流地址和推流码
 func GetLiveRoom(uid uint) (interface{}, error) {
 	//// 请求直播服务器 http://127.0.0.1:8090/control/get?room=${uid}
-	//// todo:注意这里的推流地址的格式，后面配置媒体服务器可能要用
 	//url := global.Config.LiveConfig.Agreement + "://" + global.Config.LiveConfig.IP + ":" +
 	//	global.Config.LiveConfig.Api + "/control/get?room=" + strconv.Itoa(int(uid))
 	//// 创建http get请求
@@ -49,7 +48,7 @@ func GetLiveRoom(uid uint) (interface{}, error) {
 	ReqGetRoom := new(live.ReqGetRoom)
 	ReqGetRoom.Data = fmt.Sprintf("room-%d", uid)
 	address := "rtmp://" + global.Config.LiveConfig.IP + ":" + global.Config.LiveConfig.RTMP + "/app"
-	fmt.Println(address, ReqGetRoom.Data)
+
 	return live2.GetLiveRoomResponse(address, ReqGetRoom.Data), nil
 }
 
@@ -67,7 +66,7 @@ func GetLiveRoomInfo(data live.GetLiveRoomInfoReceiveStruct, uid uint) (interfac
 		global.Config.LiveConfig.FLV + "/live?" + "port=" + global.Config.LiveConfig.RTMP +
 		"&app=app" + "&stream=room-" +
 		strconv.Itoa(int(data.RoomID))
-	fmt.Println(flv)
+
 	if uid > 0 {
 		// 添加观看直播的历史记录
 		rd := new(record.Record)
@@ -79,7 +78,6 @@ func GetLiveRoomInfo(data live.GetLiveRoomInfoReceiveStruct, uid uint) (interfac
 	return live2.GetLiveRoomInfoResponse(userInfo, flv), nil
 }
 
-// todo:怎么从媒体服务器获取所有publisher的推流地址
 func GetBeLiveList() (interface{}, error) {
 	// http://47.97.31.45:80/stat/livestat http.Get得到正在推流的推流码room-${uid}
 	url := global.Config.LiveConfig.Agreement + "://" +

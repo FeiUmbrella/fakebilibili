@@ -9,7 +9,6 @@ import (
 	"fakebilibili/infrastructure/pkg/utils/response"
 	"fakebilibili/infrastructure/pkg/utils/validator"
 	video3 "fakebilibili/quartzImpl/video"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"strconv"
@@ -187,7 +186,6 @@ func (c Controllers) DeleteVideoByPath(ctx *gin.Context) {
 func (c Controllers) GetLastWatchTime(ctx *gin.Context) {
 	vid, _ := strconv.ParseInt(ctx.Query("id"), 10, 64)
 	uid := ctx.GetUint("uid")
-	fmt.Println("uid=", uid, " video_id=", vid)
 	res, err := video2.GetLastWatchTime(uid, uint(vid))
 	c.Response(ctx, res, err)
 }

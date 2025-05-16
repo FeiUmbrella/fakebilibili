@@ -9,6 +9,6 @@ func (r *RouterGroup) InitRouter(Router *gin.RouterGroup) {
 	callbackControllers := new(callback.Controllers)
 	routers := Router.Group("callback").Use()
 	{
-		routers.POST("/aliyunTranscodingMedia", callbackControllers.AliyunTranscodingMedia())
+		routers.POST("/aliyunTranscodingMedia", callbackControllers.AliyunTranscodingMedia)
 	}
 }

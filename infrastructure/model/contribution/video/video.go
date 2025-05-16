@@ -188,9 +188,9 @@ func (vc *VideosContribution) GetVideoComments(vId uint, pageInfo common.PageInf
 		Preload("Likes").
 		Preload("Comments", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("UserInfo").
-				Order("created_at desc").
-				Limit(pageInfo.Size).
-				Offset((pageInfo.Page - 1) * pageInfo.Size)
+				Order("created_at desc")
+			//Limit(pageInfo.Size).
+			//Offset((pageInfo.Page - 1) * pageInfo.Size)
 		}).Find(&vc).Error
 	return err == nil
 }
